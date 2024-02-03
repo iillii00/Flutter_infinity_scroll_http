@@ -30,7 +30,7 @@ class _mainPuageState extends State<mainPuage> {
   List posts = [];
   final scrollController = ScrollController();
   int page = 1;
-  bool isLoadingMore = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -48,7 +48,6 @@ class _mainPuageState extends State<mainPuage> {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as List;
       setState(() {
-        // posts = posts + json;
         posts.addAll(json);
       });
     } else {
@@ -59,16 +58,17 @@ class _mainPuageState extends State<mainPuage> {
   void _scrollListener() {
     if (scrollController.position.pixels ==
         scrollController.position.maxScrollExtent) {
-      setState(() {
-        isLoadingMore = true;
-        debugPrint('first booll : $isLoadingMore');
-      });
+      if(!isLoading){
+        isLoading = true;
+        print('p1 : $isLoading');
+      }
       page = page + 1;
       print('Now page : $page');
-      fetchPosts();
-      setState(() {
-        isLoadingMore = false;
-        debugPrint('secound booll : $isLoadingMore');
+      fetchPosts().then((_){
+        setState(() {
+          isLoading = false;
+          print('p2 : $isLoading');
+        });
       });
     } else {
       print('call none');
@@ -82,24 +82,29 @@ class _mainPuageState extends State<mainPuage> {
       body: ListView.builder(
           padding: EdgeInsets.fromLTRB(10, 30, 10, 20),
           controller: scrollController,
-          itemCount: posts.length,
+          itemCount: posts.length + (isLoading ? 0 : 1),
           itemBuilder: (BuildContext context, int index) {
-            final post = posts[index];
-            final title = post['title']['rendered'];
-            final description = post['excerpt']['rendered'];
-            return Card(
-                    child: ListTile(
-                      leading: Text('${index + 1}'),
-                      title: Text(
-                        'Title : $title',
-                        maxLines: 1,
-                      ),
-                      subtitle: Text(
-                        'Description : $description',
-                        maxLines: 3,
-                      ),
-                    ),
-                  );
+            if (index < posts.length) {
+              print('index : $index');
+              final post = posts[index];
+              final title = post['title']['rendered'];
+              final description = post['excerpt']['rendered'];
+              return Card(
+                child: ListTile(
+                  leading: Text('${index + 1}'),
+                  title: Text(
+                    'Title : $title',
+                    maxLines: 1,
+                  ),
+                  subtitle: Text(
+                    'Description : $description',
+                    maxLines: 3,
+                  ),
+                ),
+              );
+            }else{
+              return Center(child: CircularProgressIndicator(),);
+            }
           }),
     );
   }
