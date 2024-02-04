@@ -6,7 +6,7 @@ void main() {
 
 void showData() async {
   startTask();
-  accessData();
+  await accessData();
   fetchData();
 }
 
@@ -23,12 +23,17 @@ void startTask() {
 Future<void> accessData() async {
   Duration time = Duration(seconds: 3);
   if (time.inSeconds > 2) {
-   await Future.delayed(time, () {
-      String info2 = '데이터 처리 완료';
+  await  Future.delayed(time, () {
+      String info3 = 'accessData 1';
+      print(info3);
+    });
+
+  Future.delayed(time, () {
+      String info2 = 'accessData 2';
       print(info2);
     });
   } else {
-    String info2 = '데이터 가지고 왔음';
+    String info2 = 'accessData NONE';
     print(info2);
   }
 }
